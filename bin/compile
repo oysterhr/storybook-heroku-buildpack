@@ -24,9 +24,8 @@ HTPASSWD="/app/.htpasswd"
 USERNAME=$(cat "$ENV_DIR/BASIC_AUTH_USERNAME")
 PASSWORD=$(cat "$ENV_DIR/BASIC_AUTH_PASSWORD")
 
-echo "BASIC_AUTH_USERNAME: $USERNAME"
-
 if [ ! -z "$USERNAME" ] && [ ! -z "$PASSWORD" ]; then
+    echo "Inside if veryfiying username and password"
     htpasswd="${USERNAME}:${PASSWORD}"
     echo "$htpasswd" >> "$HTPASSWD"
 fi
