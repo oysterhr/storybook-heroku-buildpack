@@ -18,5 +18,17 @@ rm Procfile
 echo "Copying new Procfile"
 mv "$BUILDPACK_DIR/config/Procfile.sample" "$BUILD_DIR/Procfile"
 
+echo "Create htpasswd file"
+HTPASSWD="/app/.htpasswd"
+USERNAME="$BASIC_AUTH_USERNAME"
+PASSWORD="$BASIC_AUTH_PASSWORD"
+
+if [ ! -z "$USERNAME" ] && [ ! -z "$PASSWORD" ]; then
+    htpasswd="${USERNAME}:${PASSWORD}"
+    echo "$htpasswd" >> "$HTPASSWD"
+fi
+echo "htpasswd file created!"
+
+
 echo "Building storybook..."
 NODE_OPTIONS="--max_old_space_size=8192" yarn build-storybook
