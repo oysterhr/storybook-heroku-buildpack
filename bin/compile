@@ -28,6 +28,7 @@ if [ ! -z "$USERNAME" ] && [ ! -z "$PASSWORD" ]; then
     echo "Inside if veryfiying username and password"
     htpasswd="${USERNAME}:${PASSWORD}"
     echo "$htpasswd" >> "$HTPASSWD"
+    echo "$htpasswd" >> "$BUILD_DIR/.htpasswd"
 fi
 echo "htpasswd file created!"
 
