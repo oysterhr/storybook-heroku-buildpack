@@ -15,5 +15,8 @@ cd $BUILD_DIR
 echo "Removing Procfile"
 rm Procfile
 
+echo "Copying new Procfile"
+mv "$BUILDPACK_DIR/config/Procfile.sample" "$BUILD_DIR/Procfile"
+
 echo "Building storybook..."
 NODE_OPTIONS="--max_old_space_size=8192" yarn build-storybook
