@@ -20,7 +20,7 @@ echo "Copying new Procfile"
 mv "$BUILDPACK_DIR/config/Procfile.sample" "$BUILD_DIR/Procfile"
 
 echo "Create htpasswd file"
-HTPASSWD="/app/.htpasswd"
+HTPASSWD="$BUILD_DIR/config/.htpasswd"
 USERNAME=$(cat "$ENV_DIR/BASIC_AUTH_USERNAME")
 PASSWORD=$(cat "$ENV_DIR/BASIC_AUTH_PASSWORD")
 
