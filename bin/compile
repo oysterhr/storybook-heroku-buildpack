@@ -4,10 +4,10 @@ BUILD_DIR=$1
 BUILDPACK_DIR="$(dirname "$(dirname "$0")")"
 
 echo "Copying nginx.conf.erb to config/"
-cp $BUILDPACK_DIR/nginx.conf.erb $BUILD_DIR/config/
+cp "$BUILDPACK_DIR/nginx.conf.erb" "$BUILD_DIR/config/"
 
 echo "Copying mime.types to config/"
-cp $BUILDPACK_DIR/mime.types $BUILD_DIR/config/
+cp "$BUILDPACK_DIR/mime.types" "$BUILD_DIR/config/"
 
 echo "Moving to $BUILD_DIR"
 cd $BUILD_DIR
@@ -16,7 +16,4 @@ echo "Removing Procfile"
 rm Procfile
 
 echo "Building storybook..."
-yarn build-storybook
-echo "Done building storybook."
-
-exit 0
+NODE_OPTIONS="--max_old_space_size=8192" yarn build-storybook
