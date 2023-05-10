@@ -1,6 +1,7 @@
 #!/bin/sh
 
 BUILD_DIR=$1
+ENV_DIR=$3
 BUILDPACK_DIR="$(dirname "$(dirname "$0")")"
 
 echo "Copying nginx.conf.erb to config/"
@@ -20,8 +21,8 @@ mv "$BUILDPACK_DIR/config/Procfile.sample" "$BUILD_DIR/Procfile"
 
 echo "Create htpasswd file"
 HTPASSWD="/app/.htpasswd"
-USERNAME="$BASIC_AUTH_USERNAME"
-PASSWORD="$BASIC_AUTH_PASSWORD"
+USERNAME=$(cat "$ENV_DIR/BASIC_AUTH_USERNAME")
+PASSWORD=$(cat "$ENV_DIR/BASIC_AUTH_PASSWORD")
 
 echo "BASIC_AUTH_USERNAME: $USERNAME"
 
