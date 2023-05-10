@@ -25,7 +25,6 @@ USERNAME=$(cat "$ENV_DIR/BASIC_AUTH_USERNAME")
 PASSWORD=$(cat "$ENV_DIR/BASIC_AUTH_PASSWORD")
 
 if [ ! -z "$USERNAME" ] && [ ! -z "$PASSWORD" ]; then
-    echo "Inside if veryfiying username and password"
     htpasswd="${USERNAME}:${PASSWORD}"
     echo "$htpasswd" >> "$HTPASSWD"
     echo "$htpasswd" >> "$BUILD_DIR/.htpasswd"
@@ -34,4 +33,5 @@ echo "htpasswd file created!"
 
 
 echo "Building storybook..."
-NODE_OPTIONS="--max_old_space_size=8192" yarn build-storybook
+NODE_OPTIONS=$(cat "$ENV_DIR/NODE_OPTIONS")
+NODE_OPTIONS="$NODE_OPTIONS" yarn build-storybook
