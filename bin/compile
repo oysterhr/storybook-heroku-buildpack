@@ -23,6 +23,8 @@ HTPASSWD="/app/.htpasswd"
 USERNAME="$BASIC_AUTH_USERNAME"
 PASSWORD="$BASIC_AUTH_PASSWORD"
 
+echo "BASIC_AUTH_USERNAME: $USERNAME"
+
 if [ ! -z "$USERNAME" ] && [ ! -z "$PASSWORD" ]; then
     htpasswd="${USERNAME}:${PASSWORD}"
     echo "$htpasswd" >> "$HTPASSWD"
