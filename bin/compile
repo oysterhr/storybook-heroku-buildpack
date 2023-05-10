@@ -4,10 +4,10 @@ BUILD_DIR=$1
 BUILDPACK_DIR="$(dirname "$(dirname "$0")")"
 
 echo "Copying nginx.conf.erb to config/"
-cp "$BUILDPACK_DIR/nginx.conf.erb" "$BUILD_DIR/config/"
+cp "$BUILDPACK_DIR/config/nginx.conf.erb" "$BUILD_DIR/config/"
 
 echo "Copying mime.types to config/"
-cp "$BUILDPACK_DIR/mime.types" "$BUILD_DIR/config/"
+cp "$BUILDPACK_DIR/config/mime.types" "$BUILD_DIR/config/"
 
 echo "Moving to $BUILD_DIR"
 cd $BUILD_DIR
