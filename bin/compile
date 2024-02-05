@@ -35,3 +35,6 @@ echo "htpasswd file created!"
 echo "Building storybook..."
 NODE_OPTIONS=$(cat "$ENV_DIR/NODE_OPTIONS")
 NODE_OPTIONS="$NODE_OPTIONS" yarn build-storybook
+
+echo "Remove node_modules..."
+find . -type d -name "node_modules" -exec rm -rf {} \;
