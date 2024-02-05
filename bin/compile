@@ -36,5 +36,14 @@ echo "Building storybook..."
 NODE_OPTIONS=$(cat "$ENV_DIR/NODE_OPTIONS")
 NODE_OPTIONS="$NODE_OPTIONS" yarn build-storybook
 
-echo "Remove node_modules..."
-find . -type d -name "node_modules" -exec rm -rf {} \;
+echo "Adding folders to .slugignore"
+
+echo "/app" >> $BUILD_DIR/.slugignore
+echo "/node_modules" >> $BUILD_DIR/.slugignore
+echo "/backend" >> $BUILD_DIR/.slugignore
+echo "/config" >> $BUILD_DIR/.slugignore
+echo "/data" >> $BUILD_DIR/.slugignore
+echo "/datadog" >> $BUILD_DIR/.slugignore
+echo "/db" >> $BUILD_DIR/.slugignore
+echo "/gems" >> $BUILD_DIR/.slugignore
+echo "/nix" >> $BUILD_DIR/.slugignore
