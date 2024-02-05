@@ -47,3 +47,5 @@ echo "/datadog" >> $BUILD_DIR/.slugignore
 echo "/db" >> $BUILD_DIR/.slugignore
 echo "/gems" >> $BUILD_DIR/.slugignore
 echo "/nix" >> $BUILD_DIR/.slugignore
+
+cat $BUILD_DIR/.slugignore
