@@ -31,10 +31,12 @@ if [ ! -z "$USERNAME" ] && [ ! -z "$PASSWORD" ]; then
 fi
 echo "htpasswd file created!"
 
+echo "Generate codegen"
+yarn codegen
 
 echo "Building storybook..."
 NODE_OPTIONS=$(cat "$ENV_DIR/NODE_OPTIONS")
-NODE_OPTIONS="$NODE_OPTIONS" yarn codegen && yarn build-storybook
+NODE_OPTIONS="$NODE_OPTIONS" yarn workspace @oysterhr/storybook build:storybook
 
 echo "Removing folders"
 
