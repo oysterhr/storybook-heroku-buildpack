@@ -60,7 +60,7 @@ In the Heroku dashboard, open oyster-storybook-staging, then Deploy. Connect Git
    heroku buildpacks -a oyster-storybook        # record the current list
    heroku buildpacks:set --index 2 https://github.com/oysterhr/storybook-heroku-buildpack#c7512ffe3bccfe2aac34e0b9c9c28d8a92569f38 -a oyster-storybook
    ```
-   (`c7512ffe3bccfe2aac34e0b9c9c28d8a92569f38` is master as of this PR. Re-check it is still master HEAD before pinning.)
+   (`c7512ffe3bccfe2aac34e0b9c9c28d8a92569f38` is main HEAD as of this PR. Re-check it before pinning.)
 2. Merge the PR. Record the merge commit SHA as `<MERGED_SHA>`.
 3. Set the allowlist (🔴 **WARNING: THIS RESTARTS ALL oyster-storybook DYNOS**). With the old buildpack still running, this has no effect except the restart:
    ```sh
