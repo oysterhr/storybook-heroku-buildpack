@@ -17,7 +17,11 @@ http {
 
 	server_tokens off;
 
-  log_format l2met 'measure#nginx.service=$request_time request_id=$http_x_request_id';
+  # client_ip is $remote_addr AFTER realip (rightmost XFF entry from the router).
+  # router_peer is the TCP peer before realip: use it to verify set_real_ip_from.
+  log_format l2met 'measure#nginx.service=$request_time request_id=$http_x_request_id '
+                   'client_ip=$remote_addr router_peer=$realip_remote_addr status=$status '
+                   'method=$request_method uri="$uri" xff="$http_x_forwarded_for"';
 	access_log <%= ENV['NGINX_ACCESS_LOG_PATH'] || 'logs/nginx/access.log' %> l2met;
 	error_log <%= ENV['NGINX_ERROR_LOG_PATH'] || 'logs/nginx/error.log' %>;
 
@@ -35,9 +39,64 @@ http {
 		keepalive_timeout 5;
     root public/storybook-static;
 
+    # --- Real client IP ---
+    # Heroku's router APPENDS the true client IP as the RIGHTMOST X-Forwarded-For
+    # entry; anything to its left is client-supplied and spoofable. With
+    # real_ip_recursive on, nginx walks XFF right-to-left skipping trusted
+    # proxies, so $remote_addr = the rightmost untrusted entry = router-observed IP.
+    # UNVERIFIED: Heroku does not document the router source range. 10.0.0.0/8 is
+    # assumed and MUST be verified empirically on staging before prod (read
+    # router_peer= in the access log). See README "VPN IP gate".
+    set_real_ip_from 10.0.0.0/8;
+    real_ip_header X-Forwarded-For;
+    real_ip_recursive on;
+<%
+  # VPN allowlist from VPN_ALLOWED_CIDRS (comma-separated IPv4 / IPv4 CIDR).
+  # Unset/empty => no gate emitted (pre-rollout behaviour).
+  # Invalid entries are skipped (never emitted) so a typo cannot break the
+  # config and crash-loop the dyno. Prefixes shorter than /8 are rejected to
+  # avoid an accidental allow-everyone.
+  octet = '(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)'
+  cidr_re = /\A#{octet}(?:\.#{octet}){3}(?:\/(?:[89]|[12]\d|3[0-2]))?\z/
+  vpn_raw = ENV['VPN_ALLOWED_CIDRS'].to_s
+  vpn_valid = []
+  vpn_skipped = []
+  vpn_raw.split(',').map(&:strip).reject(&:empty?).each do |c|
+    if cidr_re.match?(c) then vpn_valid << c else vpn_skipped << c end
+  end
+%>
+<% vpn_skipped.each do |c| %>
+    # VPN_ALLOWED_CIDRS: SKIPPED invalid entry "<%= c.gsub(/[^0-9A-Za-z.\/:_-]/, '?') %>"
+<% end %>
+<% if vpn_raw.strip.empty? %>
+    # VPN gate OFF: VPN_ALLOWED_CIDRS unset or empty.
+<% else %>
+    # VPN gate ON (<%= vpn_valid.size %> valid entries). If the var is set but
+    # every entry is invalid this fails CLOSED (deny all) rather than open.
+<% vpn_valid.each do |c| %>
+    allow <%= c %>;
+<% end %>
+    deny all;
 
+    # Custom 403. error_page does an internal redirect, which RE-RUNS the access
+    # phase, so this location must itself allow everyone and disable Basic auth
+    # or a denied client would get nginx's default 403 / a 401 instead of the page.
+    # `internal` stops it being fetched directly (direct hits return 404).
+    error_page 403 /vpn-403.html;
+    location = /vpn-403.html {
+      internal;
+      allow all;
+      auth_basic off;
+    }
+<% end %>
+
+<% if File.exist?(".htpasswd") %>
     auth_basic "Restricted";
     auth_basic_user_file .htpasswd;
+<% else %>
+    # Basic auth OFF: .htpasswd absent (BASIC_AUTH_* unset at build time).
+    # Without this guard nginx would 500 every allowed request on the missing file.
+<% end %>
 
   }
 }
