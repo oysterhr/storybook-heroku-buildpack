@@ -21,15 +21,20 @@ mv "$BUILDPACK_DIR/config/Procfile.sample" "$BUILD_DIR/Procfile"
 
 echo "Create htpasswd file"
 HTPASSWD="$BUILD_DIR/config/.htpasswd"
-USERNAME=$(cat "$ENV_DIR/BASIC_AUTH_USERNAME")
-PASSWORD=$(cat "$ENV_DIR/BASIC_AUTH_PASSWORD")
+USERNAME=$(cat "$ENV_DIR/BASIC_AUTH_USERNAME" 2>/dev/null)
+PASSWORD=$(cat "$ENV_DIR/BASIC_AUTH_PASSWORD" 2>/dev/null)
 
 if [ ! -z "$USERNAME" ] && [ ! -z "$PASSWORD" ]; then
-    htpasswd="${USERNAME}:${PASSWORD}"
-    echo "$htpasswd" >> "$HTPASSWD"
-    echo "$htpasswd" >> "$BUILD_DIR/.htpasswd"
+    # nginx on Linux does not accept plaintext passwords; store an APR1 hash.
+    # Password is passed via stdin so it never appears in the process list.
+    HASH=$(printf '%s\n' "$PASSWORD" | openssl passwd -apr1 -stdin) || { echo "openssl passwd failed" >&2; exit 1; }
+    htpasswd="${USERNAME}:${HASH}"
+    echo "$htpasswd" > "$HTPASSWD"
+    echo "$htpasswd" > "$BUILD_DIR/.htpasswd"
+    echo "htpasswd file created!"
+else
+    echo "BASIC_AUTH_USERNAME/BASIC_AUTH_PASSWORD unset; skipping htpasswd"
 fi
-echo "htpasswd file created!"
 
 echo "Generate codegen"
 yarn codegen
@@ -37,6 +42,17 @@ yarn codegen
 echo "Building storybook..."
 NODE_OPTIONS=$(cat "$ENV_DIR/NODE_OPTIONS")
 NODE_OPTIONS="$NODE_OPTIONS" yarn workspace @oysterhr/storybook build:storybook
+
+echo "Writing VPN 403 page into docroot"
+cat > "$BUILD_DIR/public/storybook-static/vpn-403.html" <<'HTML'
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>VPN required</title>
+<style>body{font-family:system-ui,sans-serif;max-width:36rem;margin:4rem auto;padding:0 1rem;line-height:1.5;color:#1a1a1a}</style></head>
+<body><h1>VPN required</h1>
+<p>VPN required &mdash; this app is only reachable from the company VPN. Connect the VPN and reload.</p>
+<p>Still blocked? Ping @platform-flow-security in Slack.</p>
+</body></html>
+HTML
 
 echo "Removing folders"
 
