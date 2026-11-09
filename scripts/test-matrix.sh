@@ -14,6 +14,9 @@ check() { local name="$1" want="$2" got="$3"
 echo "egress IP: $(curl -s --max-time 10 https://ifconfig.me || echo unknown)"
 if [ "$MODE" = on ]; then
   check "on-VPN plain GET (Basic auth in front)" "401|200" "$(code)"
+  # Catches an over-broad set_real_ip_from: if the client itself were treated as
+  # a trusted proxy, a spoofed XFF would change the resolved IP. It must not.
+  check "on-VPN spoofed XFF ignored (still served)" "401|200" "$(code -H "X-Forwarded-For: 203.0.113.7")"
 else
   check "off-VPN plain GET" "403" "$(code)"
   check "off-VPN spoofed leftmost XFF ($SPOOF)" "403" "$(code -H "X-Forwarded-For: $SPOOF")"

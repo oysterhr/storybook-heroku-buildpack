@@ -90,9 +90,13 @@ http {
     }
 <% end %>
 
-
+<% if File.exist?(".htpasswd") %>
     auth_basic "Restricted";
     auth_basic_user_file .htpasswd;
+<% else %>
+    # Basic auth OFF: .htpasswd absent (BASIC_AUTH_* unset at build time).
+    # Without this guard nginx would 500 every allowed request on the missing file.
+<% end %>
 
   }
 }

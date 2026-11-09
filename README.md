@@ -37,6 +37,7 @@ Comma-separated IPv4 addresses or CIDRs. It is read when the dyno boots (`bin/st
 - **Set:** `allow` for each valid entry, then `deny all`. Denied clients get `/vpn-403.html`.
 - **Invalid entries** (bad octet, prefix shorter than /8, junk) are skipped and shown as `# SKIPPED` comments in the rendered config. A typo can never produce an nginx config that fails to load and sends the dyno into a crash loop.
 - **Set, but every entry invalid:** fails closed (`deny all`).
+- **IPv4 only.** An IPv6 entry is skipped — including in break-glass. From an IPv6-only connection, use an IPv4 hotspot or add a colleague's/office IPv4 egress instead.
 
 The source of truth is `vpn/p81-ips.md` (13 Perimeter 81 gateway IPs):
 

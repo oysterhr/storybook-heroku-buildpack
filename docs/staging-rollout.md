@@ -13,11 +13,11 @@ heroku stack:set heroku-24 -a oyster-storybook-staging
 
 heroku buildpacks:set heroku/nodejs -a oyster-storybook-staging
 heroku buildpacks:add https://github.com/oysterhr/storybook-heroku-buildpack#vpn-gate -a oyster-storybook-staging
-heroku buildpacks:add heroku-community/nginx -a oyster-storybook-staging
+heroku buildpacks:add https://github.com/heroku/heroku-buildpack-nginx.git -a oyster-storybook-staging
 heroku buildpacks -a oyster-storybook-staging   # check the order: nodejs, storybook, nginx
 ```
 
-Before running these, confirm the nginx buildpack reference matches what production uses (`heroku buildpacks -a oyster-storybook`). If production uses a GitHub URL, use the same one.
+The nginx buildpack URL above is production's exact value (verified via `heroku buildpacks -a oyster-storybook`, 2026-10-19). Re-check it once before running, as a confirmation rather than a decision.
 
 ## 2. Config vars (copied explicitly, never cloned wholesale)
 
